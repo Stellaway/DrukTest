@@ -3,7 +3,7 @@ package test;
 
 public class Main {
     static int TESTCOUNT = 49;
-    static String VERSIONNAME = "druk-0.2";
+    static String VERSIONNAME = "# druk-0.2";
 
     public static void main(String[] args) {
         Test test;
