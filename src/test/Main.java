@@ -7,8 +7,6 @@ public class Main {
 
     public static void main(String[] args) {
         Test test;
-        for(String arg : args)
-            System.out.println(arg);
         if(args.length == 0 || args.length == 1) {
             test = new Test(TESTCOUNT, VERSIONNAME, args);
             test.run();
