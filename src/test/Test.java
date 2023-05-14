@@ -24,7 +24,11 @@ public class Test {
         if(testArgs.length == 0)
             this.toTest = 0;
         else
-            this.toTest = Integer.parseInt(testArgs[0]);
+            try {
+                this.toTest = Integer.parseInt(testArgs[0]);
+            } catch (NumberFormatException e) {
+                throw new NumberFormatException("Not a test number");
+            }
     }
 
     public void run() {
@@ -34,19 +38,17 @@ public class Test {
         }
 
         //run all
-        if(toTest == 0){
-            for(int i = 1; i <= testCount; i++){
+        if(toTest == 0)
+            for(int i = 1; i <= testCount; i++)
                 runDruk(i);
-            }
-        }
+
         //run one
-        else{
-            runDruk(toTest);
-        }
+        else runDruk(toTest);
+
 
         //compare test outputs to the expected
         try {
-            compExpected();
+            compareExpected();
         } catch (FileNotFoundException e) {
             System.out.println("Error: test file(s) missing!");
         } catch (IOException e) {
@@ -56,37 +58,63 @@ public class Test {
     }
 
     //compares testfiles, and prints the result into TEST_RESULT_<DATE>.txt
-    private void compExpected() throws FileNotFoundException, IOException {
+    private void compareExpected() throws FileNotFoundException, IOException {
         //compare all outputs
 
-        File result = new File("TEST_RESULT_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".txt");
+        File result = new File("results/TEST_RESULT_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".txt");
         FileWriter fw = new FileWriter(result, true);
 
-        fw.write("TEST RESULTS - " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss\n")));
+        fw.write("TEST RESULTS @ " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")) + "\n" +
+                "Tested version: " + this.versionName + "\n\n");
 
         if(this.toTest == 0){
             int passedTests = 0;
             for(int i = 1; i <= this.testCount; i++){
-                Scanner outScan = new Scanner(new File(String.format("%02d", i) + "_out.txt"));
-                Scanner expScan = new Scanner(new File(String.format("%02d", i) + "_exp.txt"));
+                try {
+                    fw.write("Test " + i + ": ");
 
-                String resultString = compareFiles(outScan, expScan);
-                if(resultString.equals("ok")){
-                    passedTests++;
-                    //TODO: print to file
-                }
-                else{
-                    //TODO: print mismatch to file
+                    Scanner outScan = new Scanner(new File("out/" + String.format("%02d", i) + "_out.txt"));
+                    Scanner expScan = new Scanner(new File("exp/" + String.format("%02d", i) + "_exp.txt"));
+
+
+                    String testResult = compareFiles(outScan, expScan);
+                    if (testResult.equals("ok")) {
+                        passedTests++;
+                        fw.write("passed!\n");
+                    } else {
+                        fw.write("failed! Details below:\n\t");
+                        fw.write(testResult);
+                        fw.write("\n");
+                    }
+                }catch (IOException e) {
+                    fw.write("failed! Details below:\n\t");
+                    fw.write("Test file(s) missing!\n");
                 }
 
             }
 
-            //TODO: print summary to file
+            fw.write("\nAll tests run. Passed " + passedTests + " out of " + this.testCount + " tests.\n");
+            if(passedTests == this.testCount)
+                fw.write("Not too shabby!\n");
+            if(passedTests <= 5)
+                fw.write("get better...\n");
+
         }
         //compare the one output
         else{
-            //TODO: run one test
+            fw.write("Running testcase " + this.toTest+ ":\n");
+            Scanner outScan = new Scanner(new File("out/"+  String.format("%02d", this.toTest) + "_out.txt"));
+            Scanner expScan = new Scanner(new File("exp/"+   String.format("%02d", this.toTest) + "_exp.txt"));
+            String testResult = compareFiles(outScan, expScan);
+            if(testResult.equals("ok"))
+                fw.write("Test passed!\n");
+            else{
+                fw.write("Test failed! Details below:\n\t");
+                fw.write(testResult);
+                fw.write("\n");
+            }
         }
+        fw.close();
     }
 
     //returns the test result as a string
@@ -98,15 +126,18 @@ public class Test {
         }
 
         int line = 1;
+        if(!outScan.hasNextLine() || !expScan.hasNextLine())
+            return "Test file(s) incomplete!";
+
         while(outScan.hasNextLine() && expScan.hasNextLine()){
             String outLine = outScan.nextLine();
             String expLine = expScan.nextLine();
 
-            if(!outLine.equals(expLine)){
-                return "Mismatch in line " + line + ":\n" +
-                        "Expected: "+ expLine + "\n" +
-                        "Actual: "+ outLine + "\n";
-            }
+            if(!outLine.equals(expLine))
+                return "Mismatch in line " + line + ":\n\t" +
+                        "Expected: "+ expLine + "\n\t" +
+                        "Actual: "+ outLine;
+
             line++;
         }
 
@@ -115,12 +146,11 @@ public class Test {
 
 
     //used to run the drukmakor program with cmd, feeding it the in.txt file and saving the output to compare later
+    //input from "inp" folder, output will be saved to "out" folder
     private void runDruk(int testN){
         try {
-
-
-            String testInput = String.format("%02d", testN) + "_inp.txt";
-            String testOutput = String.format("%02d", testN) + "_out.txt";
+            String testInput = "inp/" + String.format("%02d", testN) + "_inp.txt";
+            String testOutput = "out/"+String.format("%02d", testN) + "_out.txt";
 
             Runtime rt = Runtime.getRuntime();
             rt.exec(new String[]{"cmd.exe", "/c", "java", "-jar", "drukmakor-0.2.jar", "<", testInput, ">", testOutput});
