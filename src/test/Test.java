@@ -153,7 +153,8 @@ public class Test {
             String testOutput = "out/"+String.format("%02d", testN) + "_out.txt";
 
             Runtime rt = Runtime.getRuntime();
-            rt.exec(new String[]{"cmd.exe", "/c", "java", "-jar", "drukmakor-0.2.jar", "<", testInput, ">", testOutput});
+            Process p = rt.exec(new String[]{"cmd.exe", "/c", "java", "-jar", "drukmakor-0.2.jar", "<", testInput, ">", testOutput});
+            p.waitFor(); // unless would mess up the order
 
         } catch (Exception e) {
             System.out.println("Error in opening to test command.");
