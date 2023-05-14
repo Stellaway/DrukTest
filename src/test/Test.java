@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Test {
@@ -16,11 +17,18 @@ public class Test {
     int toTest;
     //the name of the version to test
     String versionName;
+    //the name of the druk.jar file
+    String drukFileName;
+    //storing processes for parallel testing
+    ArrayList<Process> processes;
+    //output of the test
+    String resultFileName;
 
-    //gets the of all the available tests, and the arguments given to the testprogram
-    public Test(int testCount, String versionName, String[] testArgs){
+    //gets the of all the available tests, and the arguments given to the test program
+    public Test(int testCount, String versionName, String drukFileName, String[] testArgs){
         this.testCount = testCount;
         this.versionName = versionName;
+        this.drukFileName = drukFileName;
         if(testArgs.length == 0)
             this.toTest = 0;
         else
@@ -36,14 +44,29 @@ public class Test {
             System.out.println("Invalid test number");
             return;
         }
+        new File("out").mkdirs();
 
+        this.processes = new ArrayList<>();
         //run all
-        if(toTest == 0)
-            for(int i = 1; i <= testCount; i++)
+        if(toTest == 0) {
+            for (int i = 1; i <= testCount; i++)
                 runDruk(i);
-
+            for(Process p : this.processes)
+                try {
+                    p.waitFor();
+                } catch (InterruptedException e) {
+                    System.out.println("Error in running tests.");
+                }
+        }
         //run one
-        else runDruk(toTest);
+        else {
+            runDruk(toTest);
+            try {
+                processes.get(0).waitFor();
+            } catch (InterruptedException e) {
+                System.out.println("Error in running tests.");
+            }
+        }
 
 
         //compare test outputs to the expected
@@ -54,14 +77,16 @@ public class Test {
         } catch (IOException e) {
             System.out.println("Error: could not create result file!");
         }
+        System.out.println("Testing completed.\nTest results written to " + this.resultFileName);
 
     }
 
     //compares testfiles, and prints the result into TEST_RESULT_<DATE>.txt
     private void compareExpected() throws FileNotFoundException, IOException {
         //compare all outputs
-
-        File result = new File("results/TEST_RESULT_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".txt");
+        new File("results").mkdirs();
+        this.resultFileName = "results/TEST_RESULT_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss")) + ".txt";
+        File result = new File(resultFileName);
         FileWriter fw = new FileWriter(result, true);
 
         fw.write("TEST RESULTS @ " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss")) + "\n" +
@@ -89,6 +114,8 @@ public class Test {
                 }catch (IOException e) {
                     fw.write("failed! Details below:\n\t");
                     fw.write("Test file(s) missing!\n");
+                    fw.write("Path:\nout/" + String.format("%02d", i) + "_out.txt\n");
+
                 }
 
             }
@@ -148,16 +175,16 @@ public class Test {
     //used to run the drukmakor program with cmd, feeding it the in.txt file and saving the output to compare later
     //input from "inp" folder, output will be saved to "out" folder
     private void runDruk(int testN){
+        String testInput = "inp/" + String.format("%02d", testN) + "_inp.txt";
+        String testOutput= "out/" + String.format("%02d", testN) + "_out.txt";
+
         try {
-            String testInput = "inp/" + String.format("%02d", testN) + "_inp.txt";
-            String testOutput = "out/"+String.format("%02d", testN) + "_out.txt";
-
             Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec(new String[]{"cmd.exe", "/c", "java", "-jar", "drukmakor-0.2.jar", "<", testInput, ">", testOutput});
-            p.waitFor(); // unless would mess up the order
-
-        } catch (Exception e) {
+            Process p = rt.exec(new String[]{"cmd.exe", "/c", "java", "-jar", drukFileName, "<", testInput, ">", testOutput});
+            this.processes.add(p); //for parallell running
+        } catch (IOException e) {
             System.out.println("Error in opening to test command.");
+            System.out.println(testOutput);
         }
     }
 

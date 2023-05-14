@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eedd8229-268b-498b-8ac1-98d0b50a667a" name="Changes" comment="works">
+    <list default="true" id="eedd8229-268b-498b-8ac1-98d0b50a667a" name="Changes" comment="(semi)final version">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/Test.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +47,15 @@
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
   }
 }</component>
+  <component name="RunManager">
+    <configuration name="Unnamed" type="Application" factoryName="Application" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="test.Main" />
+      <module name="druk_test" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -58,7 +68,8 @@
       <workItem from="1683971885891" duration="2252000" />
       <workItem from="1683997861922" duration="10554000" />
       <workItem from="1684033702754" duration="142000" />
-      <workItem from="1684058521455" duration="1941000" />
+      <workItem from="1684058521455" duration="2925000" />
+      <workItem from="1684070488818" duration="6149000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1683971967838</created>
@@ -102,7 +113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1684033837820</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="# version">
+      <created>1684061491881</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1684061491881</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -125,6 +143,8 @@
     <MESSAGE value="85% there" />
     <MESSAGE value="TODO: running cmd makes output file not usable for scanner" />
     <MESSAGE value="works" />
-    <option name="LAST_COMMIT_MESSAGE" value="works" />
+    <MESSAGE value="# version" />
+    <MESSAGE value="(semi)final version" />
+    <option name="LAST_COMMIT_MESSAGE" value="(semi)final version" />
   </component>
 </project>
